@@ -33,7 +33,8 @@ namespace blogimage {
 
         public frmMain() {
             this.blogposts = new Dictionary<string, DirectoryInfo>();
-            string exepath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+            // string exepath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+            string exepath = @"G:\user\scripts\windows";
             this.script_path = Path.Combine(exepath, SCRIPTS_FOLDER);
             this.blog_path = Path.Combine(exepath, BLOG_FOLDER);
 
@@ -50,27 +51,27 @@ namespace blogimage {
             // filter only png and jpg
             images = Array.FindAll(images, f => f.Name.ToLower().EndsWith(".jpg") || f.Name.ToLower().EndsWith(".png"));
             resimages = Array.FindAll(resimages, f => f.Name.ToLower().EndsWith(".jpg") || f.Name.ToLower().EndsWith(".png"));
-            
+
+
+            // convert to string only arrays
+            List<string> images_names = new List<string>();
+            List<string> resimages_names = new List<string>();
+            foreach (FileInfo fi in images) {
+                images_names.Add(fi.Name.ToLower());
+            }
+            foreach (FileInfo fi in resimages) {
+                resimages_names.Add(fi.Name.ToLower());
+            }
+
+            // get same
+            var intersect = resimages_names.Intersect(images_names);
+
             if (images.Length != resimages.Length) {
-
-                // convert to string only arrays
-                List<string> images_names = new List<string>();
-                List<string> resimages_names = new List<string>();
-                foreach (FileInfo fi in images) {
-                    images_names.Add(fi.Name.ToLower());
-                }
-                foreach (FileInfo fi in resimages) {
-                    resimages_names.Add(fi.Name.ToLower());
-                }
-
-                // get same
-                var intersect = resimages_names.Intersect(images_names);
-
                 // log missing
-                foreach (string resimage in resimages_names) {                    
-                    if(!intersect.Contains(resimage)) {
+                foreach (string resimage in resimages_names) {
+                    if (!intersect.Contains(resimage)) {
                         messages.Add(String.Format("{0}:{1}", PARSE_MISSING, resimage));
-                    }                    
+                    }
                 }
                 // log excess
                 foreach (string image in images_names) {
@@ -80,18 +81,20 @@ namespace blogimage {
                 }
 
                 valid_images.AddRange(intersect);
-            } else {
-                // lengths match -> compare write time
-                for (var i = 0; i < images.Length; i++) {
-                    FileInfo fi_image = images[i];
-                    FileInfo fi_resimage = resimages[i];
-                    if (fi_resimage.LastWriteTime > fi_image.LastWriteTime) {
-                        messages.Add(String.Format("{0}:{1}", PARSE_OUTDATE, fi_resimage.Name));
-                    } else {
-                        valid_images.Add(fi_image.Name);
-                    }
-                }
             }
+
+            // check dates of intersect
+            // lengths match -> compare write time
+            foreach(string intpost in intersect ) {
+                // find in images and resimages      
+                FileInfo fi_image = images[images_names.IndexOf(intpost)];
+                FileInfo fi_resimage = resimages[resimages_names.IndexOf(intpost)];
+                if (fi_resimage.LastWriteTime > fi_image.LastWriteTime) {
+                    messages.Add(String.Format("{0}:{1}", PARSE_OUTDATE, fi_resimage.Name));
+                } else {
+                    valid_images.Add(fi_image.Name);
+                }
+            }            
 
             // add valid images
             foreach(string image in valid_images) {
@@ -217,7 +220,7 @@ namespace blogimage {
                 details_typemap.Add(PARSE_OK, Color.LightGreen);
                 details_typemap.Add(PARSE_MISSING, Color.IndianRed);
                 details_typemap.Add(PARSE_EXCESS, Color.OrangeRed);
-                details_typemap.Add(PARSE_OUTDATE, Color.LightGreen);
+                details_typemap.Add(PARSE_OUTDATE, Color.LightSalmon);
 
                 lvDetails.Items.Clear();             
                 // get post string
