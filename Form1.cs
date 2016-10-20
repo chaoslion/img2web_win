@@ -33,8 +33,7 @@ namespace blogimage {
 
         public frmMain() {
             this.blogposts = new Dictionary<string, DirectoryInfo>();
-            // string exepath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
-            string exepath = @"G:\user\scripts\windows";
+            string exepath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
             this.script_path = Path.Combine(exepath, SCRIPTS_FOLDER);
             this.blog_path = Path.Combine(exepath, BLOG_FOLDER);
 
