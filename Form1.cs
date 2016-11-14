@@ -179,7 +179,8 @@ namespace blogimage {
 
         private bool processPost(string post, out string output) {
             string postpath = Path.Combine(this.blog_path, post);            
-            // remove old image files            
+            // remove old image files, img2web does this now
+            /*
             DirectoryInfo dipost = new DirectoryInfo(
                 postpath
             );
@@ -188,7 +189,7 @@ namespace blogimage {
             images = Array.FindAll(images, f => f.Name.EndsWith(".jpg") || f.Name.EndsWith(".png"));
             foreach(FileInfo fiimg in images) {
                 fiimg.Delete();
-            }
+            }*/
 
             // run img2web
             Process p = new Process();            
